@@ -1,16 +1,38 @@
+import Column from "components/column/Column"
+import { useEffect, useState } from "react"
+import { boardService } from "services/board"
 
 const BoardContent = () => {
+  const [isLoadingBoard, setIsLoadingBoard] = useState(true)
+  const [board, setBoard] = useState({})
+  const [columns, setColumns] = useState<any[]>([])
+
+  const fetchBoards = async () => {
+    try {
+      const board = await boardService.getBoardDetail({ boardId: '6331c68ffe2bce7be90f53ed' })
+      setBoard(board)
+      setColumns(board?.columns)
+      setIsLoadingBoard(false)
+    } catch (error: any) {
+      setIsLoadingBoard(false)
+      throw new Error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchBoards();
+  }, [])
+
+  if (isLoadingBoard) {
+    return <div></div>
+  }
+
   return (
-    <nav className="board-columns text-lg flex overflow-auto p-5">
-      <div className="column bg-stone-300 p-5 rounded-lg">
-        <header className="mb-2 px-3">BrainStorm</header>
-        <ul>
-          <li className="bg-stone-200 px-3 py-2 rounded-lg">
-            test
-          </li>
-        </ul>
-      </div>
-    </nav>
+    <div className="board-content flex">
+      {
+        columns?.map((column) => <Column key={column?._id} column={column} />)
+      }
+    </div>
   )
 }
 
