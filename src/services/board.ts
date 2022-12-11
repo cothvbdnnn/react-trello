@@ -5,14 +5,14 @@ import { request } from "../config/request";
 const getBoards = () => {
   return request({
     url: ENDPOINT.BOARDS,
-    methods: 'get',
+    method: 'get',
   })
 }
 
 const getBoardDetail = ({ boardId }: { boardId: string }) => {
   return request({
     url: `${ENDPOINT.BOARDS}/${boardId}`,
-    methods: 'get'
+    method: 'get'
   })
 }
 

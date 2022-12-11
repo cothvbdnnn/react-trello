@@ -1,0 +1,35 @@
+diff --git a/node_modules/react-smooth-dnd/dist/src/Container.d.ts b/node_modules/react-smooth-dnd/dist/src/Container.d.ts
+index cdd0c03..211eb1c 100644
+--- a/node_modules/react-smooth-dnd/dist/src/Container.d.ts
++++ b/node_modules/react-smooth-dnd/dist/src/Container.d.ts
+@@ -1,11 +1,11 @@
+-import React, { Component, CSSProperties } from 'react';
++import React, { Component, CSSProperties, PropsWithChildren } from 'react';
+ import PropTypes from 'prop-types';
+ import { ContainerOptions, SmoothDnD } from 'smooth-dnd';
+ interface ContainerProps extends ContainerOptions {
+     render?: (rootRef: React.RefObject<any>) => React.ReactElement;
+     style?: CSSProperties;
+ }
+-declare class Container extends Component<ContainerProps> {
++declare class Container extends Component<PropsWithChildren<ContainerProps>> {
+     static propTypes: {
+         behaviour: PropTypes.Requireable<string>;
+         groupName: PropTypes.Requireable<string>;
+diff --git a/node_modules/react-smooth-dnd/dist/src/Draggable.d.ts b/node_modules/react-smooth-dnd/dist/src/Draggable.d.ts
+index 7ddbb5b..9783d0f 100644
+--- a/node_modules/react-smooth-dnd/dist/src/Draggable.d.ts
++++ b/node_modules/react-smooth-dnd/dist/src/Draggable.d.ts
+@@ -1,10 +1,10 @@
+-import React, { Component } from 'react';
++import React, { Component, PropsWithChildren } from 'react';
+ import PropTypes from 'prop-types';
+ export interface DraggableProps {
+     render?: () => React.ReactElement;
+     className?: string;
+ }
+-declare class Draggable extends Component<DraggableProps> {
++declare class Draggable extends Component<PropsWithChildren<DraggableProps>> {
+     static propsTypes: {
+         render: PropTypes.Requireable<(...args: any[]) => any>;
+         className: PropTypes.Requireable<string>;

@@ -1,5 +1,5 @@
 const handleResponseErrorMessage = ({ error }: { error: any }) => {
-  let message = error?.response?.message
+  // let message = error?.response?.message
 
   switch (error?.response?.status) {
     case 401:
