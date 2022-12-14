@@ -89,6 +89,21 @@ const BoardContent = () => {
     }
   }
 
+
+  const handleCreateCard = async ({ title, columnId }: { title: string, columnId: string }) => {
+    try {
+      const data = {
+        title,
+        columnId,
+        boardId: '6331c68ffe2bce7be90f53ed'
+      }
+      await cardService.createCard({ data })
+      fetchBoards()
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
   const handleRemoveCard = async (cardId: string) => {
     try {
       await cardService.deleteCard({ cardId })
@@ -126,6 +141,7 @@ const BoardContent = () => {
                 onCardDrop={onCardDrop}
                 handleRemoveColumn={handleRemoveColumn}
                 handleRemoveCard={handleRemoveCard}
+                handleCreateCard={handleCreateCard}
               />
             </Draggable>
           ))

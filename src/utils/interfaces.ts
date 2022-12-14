@@ -14,6 +14,7 @@ export interface IColumn {
   onCardDrop: any,
   handleRemoveColumn: any,
   handleRemoveCard: any,
+  handleCreateCard: any,
 }
 
 export interface ICard {

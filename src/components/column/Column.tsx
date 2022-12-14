@@ -5,7 +5,7 @@ import Card from 'components/card/Card';
 import { IDragResult, IColumn } from 'utils/interfaces';
 import { useRef, useState } from 'react';
 
-const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCard }: IColumn) => {
+const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCard, handleCreateCard }: IColumn) => {
   const { cards }: { cards: any[] } = column
   const [isShowAddCard, setIsShowAddCard] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
@@ -24,7 +24,7 @@ const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCar
     setNewCardTitle(event.target.value)
   }
 
-  const handleToggleShowAddColumn = () => {
+  const handleToggleShowAddCard = () => {
     setIsShowAddCard(!isShowAddCard)
   }
 
@@ -62,26 +62,35 @@ const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCar
             }
           </Container>
         </ul>
-        <div className='mt-3 cursor-pointer'>
-          <FontAwesomeIcon icon={faPlus} /> Add another card
-        </div>
         <div>
-          <input
-            type="text"
-            className='w-full h-9 rounded-md mb-2 p-3'
-            ref={newCardInputRef}
-            value={newCardTitle}
-            onChange={handleOnChange}
-          />
-          <button className='bg-stone-500 px-3 py-1 cursor-pointer text-white mr-3 rounded-md'
-          // onClick={handleCreateCard}
-          >Add card</button>
-          <FontAwesomeIcon
-            className='cursor-pointer'
-            icon={faTimes}
-            size={'lg'}
-            onClick={handleToggleShowAddColumn}
-          />
+          {
+            !isShowAddCard ?
+              <div className='mt-3 cursor-pointer' onClick={handleToggleShowAddCard}>
+                <FontAwesomeIcon icon={faPlus} /> Add another card
+              </div>
+              :
+              <div>
+                <input
+                  type="text"
+                  className='w-full h-9 rounded-md mb-2 p-3'
+                  ref={newCardInputRef}
+                  value={newCardTitle}
+                  onChange={handleOnChange}
+                />
+                <div className='flex items-center'>
+                  <button
+                    className='bg-stone-500 px-3 py-1 cursor-pointer text-white mr-3 rounded-md'
+                    onClick={() => handleCreateCard({ title: newCardTitle, columnId: column?._id })}
+                  >Add card</button>
+                  <FontAwesomeIcon
+                    className='cursor-pointer'
+                    icon={faTimes}
+                    size={'lg'}
+                    onClick={handleToggleShowAddCard}
+                  />
+                </div>
+              </div>
+          }
         </div>
       </div>
     </nav>
