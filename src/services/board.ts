@@ -16,7 +16,16 @@ const getBoardDetail = ({ boardId }: { boardId: string }) => {
   })
 }
 
+const swapColumn = ({ boardId, data }: { boardId: string, data: {} }) => {
+  return request({
+    url: `${ENDPOINT.BOARDS}/${boardId}/swap-column`,
+    method: 'put',
+    data,
+  })
+}
+
 export const boardService = {
   getBoards,
   getBoardDetail,
+  swapColumn,
 }

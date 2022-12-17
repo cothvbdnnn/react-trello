@@ -9,10 +9,11 @@ const createCard = ({ data }: { data: {} }) => {
   })
 }
 
-const deleteCard = ({ cardId }: { cardId: string }) => {
+const deleteCard = ({ cardId, data }: { cardId: string, data: {} }) => {
   return request({
     url: `${ENDPOINT.CARDS}/${cardId}`,
-    method: 'delete'
+    method: 'delete',
+    data,
   })
 }
 

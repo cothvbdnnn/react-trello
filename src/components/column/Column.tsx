@@ -3,17 +3,33 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Container, Draggable } from 'react-smooth-dnd';
 import Card from 'components/card/Card';
 import { IDragResult, IColumn } from 'utils/interfaces';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCard, handleCreateCard }: IColumn) => {
+const Column = ({
+  column,
+  index,
+  onCardDrop,
+  handleRemoveColumn,
+  handleRemoveCard,
+  handleCreateCard
+}: IColumn) => {
   const { cards }: { cards: any[] } = column
   const [isShowAddCard, setIsShowAddCard] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
   const newCardInputRef = useRef<any>(null)
 
+  useEffect(() => {
+    if (!newCardInputRef?.current) return
+    newCardInputRef.current?.focus()
+  }, [isShowAddCard])
+
   const handleCardDrop = (data: IDragResult) => {
     if (data?.removedIndex === null && data?.addedIndex === null) return
-    onCardDrop(data, index)
+    const columnDetail = {
+      id: column._id,
+      index,
+    }
+    onCardDrop(data, columnDetail)
   }
 
   const handleGetChildPayload = (index: number) => {
@@ -26,6 +42,16 @@ const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCar
 
   const handleToggleShowAddCard = () => {
     setIsShowAddCard(!isShowAddCard)
+  }
+
+  const handleBeforeCreateCard = ({ title, columnId }: { title: string, columnId: string }) => {
+    handleCreateCard({ title, columnId })
+    setNewCardTitle('')
+    setIsShowAddCard(false)
+  }
+
+  const handleBeforeRemoveCard = (cardId: string) => {
+    handleRemoveCard({ cardId, columnId: column?._id })
   }
 
   return (
@@ -55,7 +81,7 @@ const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCar
                 <Draggable key={card?._id}>
                   <Card
                     card={card}
-                    handleRemoveCard={handleRemoveCard}
+                    handleRemoveCard={handleBeforeRemoveCard}
                   />
                 </Draggable>
               ))
@@ -80,7 +106,7 @@ const Column = ({ column, index, onCardDrop, handleRemoveColumn, handleRemoveCar
                 <div className='flex items-center'>
                   <button
                     className='bg-stone-500 px-3 py-1 cursor-pointer text-white mr-3 rounded-md'
-                    onClick={() => handleCreateCard({ title: newCardTitle, columnId: column?._id })}
+                    onClick={() => handleBeforeCreateCard({ title: newCardTitle, columnId: column?._id })}
                   >Add card</button>
                   <FontAwesomeIcon
                     className='cursor-pointer'

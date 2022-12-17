@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { IDragResult } from 'utils/interfaces'
 
+const boardId = '6331c68ffe2bce7be90f53ed'
+
 const BoardContent = () => {
   const [isLoadingBoard, setIsLoadingBoard] = useState(true)
   // const [board, setBoard] = useState({})
@@ -28,7 +30,7 @@ const BoardContent = () => {
 
   const fetchBoards = async () => {
     try {
-      const board = await boardService.getBoardDetail({ boardId: '6331c68ffe2bce7be90f53ed' })
+      const board = await boardService.getBoardDetail({ boardId })
       // setBoard(board)
       setColumns(board?.columns)
       setIsLoadingBoard(false)
@@ -38,16 +40,56 @@ const BoardContent = () => {
     }
   }
 
-  const onColumnDrop = (data: IDragResult) => {
-    const newColumn = applyDrag(columns, data)
-    setColumns(newColumn)
+  const onColumnDrop = async (data: IDragResult) => {
+    console.log(data);
+    try {
+      const newColumn = applyDrag(columns, data)
+      setColumns(newColumn)
+      boardService.swapColumn({ boardId, data: { oldIndex: data?.removedIndex, newIndex: data?.addedIndex } })
+    } catch (error: any) {
+      fetchBoards()
+      throw new Error(error)
+    }
   }
 
-  const onCardDrop = (data: any, columnIndex: number) => {
-    const newColumns = [...columns]
-    const currentColumn = newColumns?.[columnIndex]
-    currentColumn.cards = applyDrag(currentColumn?.cards, data);
-    setColumns(newColumns)
+  const onCardDrop = (data: any, columnDetail: { id: string, index: number }) => {
+    try {
+      const newColumns = [...columns]
+      const currentColumn = newColumns?.[columnDetail.index]
+      currentColumn.cards = applyDrag(currentColumn?.cards, data);
+      setColumns(newColumns)
+      handleSwapCard({ data, columnDetail })
+    } catch (error: any) {
+      fetchBoards()
+      throw new Error(error)
+    }
+  }
+
+  const handleSwapCard = ({ data, columnDetail }: { data: any, columnDetail: { id: string } }) => {
+    const { removedIndex, addedIndex } = data;
+    if (removedIndex !== null && addedIndex === null) {
+      cardService.deleteCard({
+        cardId: data.payload._id,
+        data: {
+          columnId: columnDetail.id
+        }
+      })
+    } else if (removedIndex === null && addedIndex !== null) {
+      const { boardId, title } = data.payload
+      cardService.createCard({
+        data: {
+          boardId,
+          columnId: columnDetail.id,
+          title
+        }
+      })
+    } else if (removedIndex !== null && addedIndex !== null) {
+      const dataSwap = {
+        oldIndex: removedIndex,
+        newIndex: addedIndex,
+      }
+      columnService.swapCard({ columnId: columnDetail.id, data: dataSwap })
+    }
   }
 
   const handleGetChildPayload = (index: number) => {
@@ -64,7 +106,10 @@ const BoardContent = () => {
 
   const handleRemoveColumn = async (columnId: string) => {
     try {
-      await columnService.deleteColumn({ columnId: columnId });
+      const data = {
+        boardId: '6331c68ffe2bce7be90f53ed',
+      }
+      await columnService.deleteColumn({ columnId, data });
       fetchBoards();
     } catch (error: any) {
       throw new Error(error);
@@ -80,8 +125,9 @@ const BoardContent = () => {
       boardId: '6331c68ffe2bce7be90f53ed'
     }
     try {
-      await columnService.createColumn({ data })
-      fetchBoards()
+      const response = await columnService.createColumn({ data })
+      const newColumns = [...columns, response];
+      setColumns(newColumns)
       setIsShowAddColumn(false)
       setNewColumnTitle('')
     } catch (error: any) {
@@ -97,16 +143,16 @@ const BoardContent = () => {
         columnId,
         boardId: '6331c68ffe2bce7be90f53ed'
       }
-      await cardService.createCard({ data })
+      const response = await cardService.createCard({ data })
       fetchBoards()
     } catch (error: any) {
       throw new Error(error)
     }
   }
 
-  const handleRemoveCard = async (cardId: string) => {
+  const handleRemoveCard = async ({ cardId, columnId }: { cardId: string, columnId: string }) => {
     try {
-      await cardService.deleteCard({ cardId })
+      await cardService.deleteCard({ cardId, data: { columnId } })
       fetchBoards()
     } catch (error: any) {
       throw new Error(error);

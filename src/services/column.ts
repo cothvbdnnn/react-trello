@@ -24,10 +24,19 @@ const createColumn = ({ data }: { data: {} }) => {
   })
 }
 
-const deleteColumn = ({ columnId }: { columnId: string }) => {
+const swapCard = ({ columnId, data }: { columnId: string, data: {} }) => {
+  return request({
+    url: `${ENDPOINT.COLUMNS}/${columnId}/swap-card`,
+    method: 'put',
+    data,
+  })
+}
+
+const deleteColumn = ({ columnId, data }: { columnId: string, data: {} }) => {
   return request({
     url: `${ENDPOINT.COLUMNS}/${columnId}`,
-    method: 'delete'
+    method: 'delete',
+    data,
   })
 }
 
@@ -36,4 +45,5 @@ export const columnService = {
   getColumnDetail,
   createColumn,
   deleteColumn,
+  swapCard,
 }
