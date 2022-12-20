@@ -13,8 +13,8 @@ const boardId = '6331c68ffe2bce7be90f53ed'
 
 const BoardContent = () => {
   const [isLoadingBoard, setIsLoadingBoard] = useState(true)
-  // const [board, setBoard] = useState({})
   const [columns, setColumns] = useState<any[]>([])
+  const [board, setBoard] = useState({})
   const [isShowAddColumn, setIsShowAddColumn] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
   const newColumnInputRef = useRef<any>(null)
@@ -31,7 +31,7 @@ const BoardContent = () => {
   const fetchBoards = async () => {
     try {
       const board = await boardService.getBoardDetail({ boardId })
-      // setBoard(board)
+      setBoard(board)
       setColumns(board?.columns)
       setIsLoadingBoard(false)
     } catch (error: any) {
@@ -41,11 +41,11 @@ const BoardContent = () => {
   }
 
   const onColumnDrop = async (data: IDragResult) => {
-    console.log(data);
     try {
       const newColumn = applyDrag(columns, data)
       setColumns(newColumn)
-      boardService.swapColumn({ boardId, data: { oldIndex: data?.removedIndex, newIndex: data?.addedIndex } })
+      const idColumns = newColumn.map(({ _id }) => _id)
+      boardService.updateBoard({ boardId, data: { columns: idColumns } })
     } catch (error: any) {
       fetchBoards()
       throw new Error(error)
@@ -57,38 +57,12 @@ const BoardContent = () => {
       const newColumns = [...columns]
       const currentColumn = newColumns?.[columnDetail.index]
       currentColumn.cards = applyDrag(currentColumn?.cards, data);
+      const idCards = currentColumn.cards.map(({ _id }: { _id: any }) => _id)
       setColumns(newColumns)
-      handleSwapCard({ data, columnDetail })
+      columnService.updateColumn({ columnId: columnDetail?.id, data: { cards: idCards } })
     } catch (error: any) {
       fetchBoards()
       throw new Error(error)
-    }
-  }
-
-  const handleSwapCard = ({ data, columnDetail }: { data: any, columnDetail: { id: string } }) => {
-    const { removedIndex, addedIndex } = data;
-    if (removedIndex !== null && addedIndex === null) {
-      cardService.deleteCard({
-        cardId: data.payload._id,
-        data: {
-          columnId: columnDetail.id
-        }
-      })
-    } else if (removedIndex === null && addedIndex !== null) {
-      const { boardId, title } = data.payload
-      cardService.createCard({
-        data: {
-          boardId,
-          columnId: columnDetail.id,
-          title
-        }
-      })
-    } else if (removedIndex !== null && addedIndex !== null) {
-      const dataSwap = {
-        oldIndex: removedIndex,
-        newIndex: addedIndex,
-      }
-      columnService.swapCard({ columnId: columnDetail.id, data: dataSwap })
     }
   }
 
@@ -107,7 +81,7 @@ const BoardContent = () => {
   const handleRemoveColumn = async (columnId: string) => {
     try {
       const data = {
-        boardId: '6331c68ffe2bce7be90f53ed',
+        boardId
       }
       await columnService.deleteColumn({ columnId, data });
       fetchBoards();
@@ -122,7 +96,7 @@ const BoardContent = () => {
     }
     const data = {
       title: newColumnTitle,
-      boardId: '6331c68ffe2bce7be90f53ed'
+      boardId
     }
     try {
       const response = await columnService.createColumn({ data })
@@ -141,9 +115,9 @@ const BoardContent = () => {
       const data = {
         title,
         columnId,
-        boardId: '6331c68ffe2bce7be90f53ed'
+        boardId
       }
-      const response = await cardService.createCard({ data })
+      await cardService.createCard({ data })
       fetchBoards()
     } catch (error: any) {
       throw new Error(error)
